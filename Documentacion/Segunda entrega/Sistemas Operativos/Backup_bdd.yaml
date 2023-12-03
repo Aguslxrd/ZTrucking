@@ -1,0 +1,10 @@
+---
+- name: Script realiza respaldo base de datos
+  hosts: servidores
+  gather_facts: no
+  tasks:
+ 
+    - name: Creacion de backup de la base de datos
+      become: yes
+      become_user: root   <--- Aqui se cambia por el nombre de usuario de Mysql
+      shell: mysqldump -u root -p 12345 --database MariaDB > /root/MariaDBBackup.sql

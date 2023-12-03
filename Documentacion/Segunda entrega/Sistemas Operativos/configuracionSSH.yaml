@@ -1,0 +1,35 @@
+---
+- name: instalar claves en host "servidores"
+  hosts: servidores
+  become: yes
+  tasks:
+    - name: instalar claves en el sistema
+      authorized_key:
+              user: root
+	      state: present
+              key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}" #<-la clave id_rsa para el usuario "root" debe de ser generada desde ssh usando ssh-keygen -t rsa
+    - name: Configuracion puerto SSH
+      become_user: root
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '#?Port'   
+        line: 'Port 22'
+      notify: Reinicio de SSH
+    
+    - name: Instalacion de cliente MYSQL
+      yum:
+        name: mysql
+        state: present
+
+    - name: Conexion del cliente a la base de datos
+      mysql_user:
+        name: root
+        password: 12345
+        host: localhost
+        state: present
+
+    - name: Reinicio de servicio SSH
+      become: yes
+      service:
+        name: sshd
+        state: restarted
